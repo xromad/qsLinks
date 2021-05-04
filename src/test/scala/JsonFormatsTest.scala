@@ -31,13 +31,14 @@ class JsonFormatsTest extends AnyFlatSpec
   }
 
   "EnumJsonConverter.read" should "parse json" in {
-
+    val jsonPermissionLevel = JsString("\"ADMIN\"")
+    val myEnum = enumJsonFormat.read(jsonPermissionLevel)
+    myEnum shouldBe PermissionLevel.ADMIN
   }
 
   "EnumJsonConverter.write" should "create json" in {
     val myEnum = PermissionLevel.ADMIN
     val jsonPermissionLevel: JsValue = enumJsonFormat.write(myEnum)
-    logger.debug("BJS *** " + jsonPermissionLevel)
     jsonPermissionLevel.toString shouldBe "\"ADMIN\""
   }
 
