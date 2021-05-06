@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import com.bjs.registry.UserRegistry.ActionPerformed
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.ConfigFactory
 import spray.json.{DefaultJsonProtocol, _}
 
 import scala.util.Try
@@ -25,7 +25,7 @@ object JsonFormats extends DefaultJsonProtocol {
 // spray does not have a date formatter
 class DateJsonConverter extends RootJsonFormat[Date] {
 
-  lazy val dateFormatString = ConfigFactory.load().getString("my-app.conversions.dateFormatString")
+  lazy val dateFormatString: String = ConfigFactory.load().getString("my-app.conversions.dateFormatString")
 
   private val localIsoDateFormatter = new ThreadLocal[SimpleDateFormat] {
     override def initialValue() = new SimpleDateFormat(dateFormatString)

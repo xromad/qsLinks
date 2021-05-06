@@ -12,7 +12,7 @@ class JsonFormatsTest extends AnyFlatSpec
   with Matchers
   with DefaultJsonProtocol {
   val logger: Logger = LoggerFactory.getLogger(this.getClass.getName)
-  lazy val dateFormatString = ConfigFactory.load().getString("my-app.conversions.dateFormatString")
+  lazy val dateFormatString: String = ConfigFactory.load().getString("my-app.conversions.dateFormatString")
 
   "DateJsonConverter.read" should "parse json" in {
     val dateString = "2021-05-04T08:25:26.618-0400"
@@ -31,7 +31,7 @@ class JsonFormatsTest extends AnyFlatSpec
   }
 
   "EnumJsonConverter.read" should "parse json" in {
-    val jsonPermissionLevel = JsString("\"ADMIN\"")
+    val jsonPermissionLevel = JsString("ADMIN")
     val myEnum = enumJsonFormat.read(jsonPermissionLevel)
     myEnum shouldBe PermissionLevel.ADMIN
   }

@@ -7,10 +7,24 @@ import akka.http.scaladsl.server.Route
 import com.bjs.registry.UserRegistry
 import com.bjs.routes.UserRoutes
 
-import scala.util.Failure
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 object QsLinksApp {
+  // start-http-server
+  def main(args: Array[String]): Unit = {
+    // server-bootstrapping
+    val rootBehavior = Behaviors.setup[Nothing] { context =>
+      val userRegistryActor = context.spawn(UserRegistry(), "UserRegistryActor")
+      context.watch(userRegistryActor)
+
+      val routes = new UserRoutes(userRegistryActor)(context.system)
+      startHttpServer(routes.userRoutes)(context.system)
+
+      Behaviors.empty
+    }
+    val system = ActorSystem[Nothing](rootBehavior, "HelloAkkaHttpServer")
+  }
+
   // start-http-server
   private def startHttpServer(routes: Route)(implicit system: ActorSystem[_]): Unit = {
     // Akka HTTP still needs a classic ActorSystem to start
@@ -25,20 +39,5 @@ object QsLinksApp {
         system.log.error("Failed to bind HTTP endpoint, terminating system", ex)
         system.terminate()
     }
-  }
-
-  // start-http-server
-  def main(args: Array[String]): Unit = {
-    // server-bootstrapping
-    val rootBehavior = Behaviors.setup[Nothing] { context =>
-      val userRegistryActor = context.spawn(UserRegistry(), "UserRegistryActor")
-      context.watch(userRegistryActor)
-
-      val routes = new UserRoutes(userRegistryActor)(context.system)
-      startHttpServer(routes.userRoutes)(context.system)
-
-      Behaviors.empty
-    }
-    val system = ActorSystem[Nothing](rootBehavior, "HelloAkkaHttpServer")
   }
 }

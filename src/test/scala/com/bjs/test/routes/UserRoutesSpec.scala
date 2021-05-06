@@ -1,36 +1,68 @@
 package com.bjs.test.routes
 
 import java.util.Date
-import spray.json._
-import org.slf4j._
 
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
 import akka.actor.typed.{ActorRef, ActorSystem}
-import akka.http.scaladsl.marshalling.{GenericMarshallers, Marshal}
+import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import com.bjs.model.{Catalog, Category, Link, User}
+import com.bjs.model._
 import com.bjs.registry.UserRegistry
 import com.bjs.routes.UserRoutes
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import org.slf4j._
+import spray.json._
 
 import scala.collection.immutable
+
+/**
+  * Example json for safe keeping
+  * {
+  * "age": 24,
+  * "catalogList": [{
+  * "categoryList": [{
+  * "dateAdded": "2021-05-04T14:29:48.279-0400",
+  * "dateModified": "2021-05-04T14:29:48.279-0400",
+  * "linkList": [{
+  * "dateAdded": "2021-05-04T14:29:48.278-0400",
+  * "dateModified": "2021-05-04T14:29:48.278-0400",
+  * "name": "FunLink",
+  * "public": true,
+  * "stars": 4,
+  * "url": "Http://www.google.com"
+  * }],
+  * "name": "utility",
+  * "public": true
+  * }],
+  * "dateAdded": "2021-05-04T14:29:48.279-0400",
+  * "dateModified": "2021-05-04T14:29:48.279-0400",
+  * "name": "Home",
+  * "public": true
+  * }],
+  * "countryOfResidence": "USA",
+  * "name": "Jenny"
+  * }
+  */
 
 class UserRoutesSpec extends AnyWordSpec
   with Matchers
   with ScalaFutures
   with ScalatestRouteTest {
-  val logger: Logger = LoggerFactory.getLogger(this.getClass.getName)
 
   // the Akka HTTP route testkit does not yet support a typed actor system (https://github.com/akka/akka-http/issues/2036)
   // so we have to adapt for now
   lazy val testKit = ActorTestKit()
+  lazy val routes: Route = new UserRoutes(userRegistry).userRoutes
+
+  //val repository = new UserRepository(MongoCollection(db.getCollection("col", classOf[User])))
+  val logger: Logger = LoggerFactory.getLogger(this.getClass.getName)
 
   implicit def typedSystem: ActorSystem[Nothing] = testKit.system
-  lazy val routes: Route = new UserRoutes(userRegistry).userRoutes
+
   // Here we need to implement all the abstract members of UserRoutes.
   // We use the real UserRegistryActor to test it while we hit the Routes,
   // but we could "mock" it by implementing it in-place or by using a TestProbe
@@ -66,7 +98,7 @@ class UserRoutesSpec extends AnyWordSpec
         url = "Http://www.google.com",
         stars = 4,
         dateAdded = new Date(),
-        dateModified = new  Date(),
+        dateModified = new Date(),
         public = true)
       val category = Category(
         name = "utility",
