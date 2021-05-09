@@ -14,9 +14,11 @@ object QsLinksApp {
   def main(args: Array[String]): Unit = {
     // server-bootstrapping
     val rootBehavior = Behaviors.setup[Nothing] { context =>
+      //add the user registry
       val userRegistryActor = context.spawn(UserRegistry(), "UserRegistryActor")
       context.watch(userRegistryActor)
 
+      //add the user routes
       val routes = new UserRoutes(userRegistryActor)(context.system)
       startHttpServer(routes.userRoutes)(context.system)
 

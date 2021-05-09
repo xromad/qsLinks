@@ -1,7 +1,7 @@
 package com.bjs.routes
 
-import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.actor.typed.scaladsl.AskPattern._
+import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -41,7 +41,6 @@ class UserRoutes(userRegistry: ActorRef[UserRegistry.Command])(implicit val syst
           concat(
             // get User by Name (/users/"name")
             get {
-              // retrieve-user-info
               rejectEmptyResponse {
                 onSuccess(getUser(name)) { response =>
                   complete(response.maybeUser)
@@ -50,7 +49,6 @@ class UserRoutes(userRegistry: ActorRef[UserRegistry.Command])(implicit val syst
             },
             // delete User by Name (/users/"name)
             delete {
-              //users-delete-logic
               onSuccess(deleteUser(name)) { performed =>
                 complete((StatusCodes.OK, performed))
               }

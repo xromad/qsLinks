@@ -7,7 +7,7 @@ import org.bson.codecs.configuration.CodecRegistry
 import org.mongodb.scala._
 import org.mongodb.scala.bson.codecs.Macros._
 
-class UserMongo {
+object UserMongo {
   lazy val config: Config = ConfigFactory.load()
   lazy val mongoClient: MongoClient = MongoClient(config.getString("my-app.mongo.uri"))
 

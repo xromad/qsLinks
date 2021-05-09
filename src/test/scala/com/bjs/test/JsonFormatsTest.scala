@@ -1,3 +1,5 @@
+package com.bjs.test
+
 import java.text.SimpleDateFormat
 
 import com.bjs.model.JsonFormats._
@@ -11,8 +13,8 @@ import spray.json.{JsString, JsValue, _}
 class JsonFormatsTest extends AnyFlatSpec
   with Matchers
   with DefaultJsonProtocol {
-  val logger: Logger = LoggerFactory.getLogger(this.getClass.getName)
   lazy val dateFormatString: String = ConfigFactory.load().getString("my-app.conversions.dateFormatString")
+  val logger: Logger = LoggerFactory.getLogger(this.getClass.getName)
 
   "DateJsonConverter.read" should "parse json" in {
     val dateString = "2021-05-04T08:25:26.618-0400"
