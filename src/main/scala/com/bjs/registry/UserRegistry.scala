@@ -18,6 +18,7 @@ object UserRegistry {
 
   private def registry: Behavior[Command] =
     Behaviors.receiveMessage {
+      //todo: need to add "Update" to this
       case GetUsers(replyTo) =>
         logger.debug("GetUsers:")
         UserRepository.findAll() onComplete {
@@ -60,3 +61,4 @@ object UserRegistry {
   final case class ActionPerformed(description: String)
 
 }
+
