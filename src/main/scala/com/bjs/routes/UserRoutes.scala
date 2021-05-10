@@ -35,7 +35,15 @@ class UserRoutes(userRegistry: ActorRef[UserRegistry.Command])(implicit val syst
                   complete((StatusCodes.Created, performed))
                 }
               }
-            })
+            },
+            put {
+              entity(as[User]) { user =>
+                onSuccess(updateUser(user)) { performed =>
+                  complete((StatusCodes.OK), performed)
+                }
+              }
+            }
+          )
         },
         path(Segment) { name =>
           concat(
@@ -67,5 +75,8 @@ class UserRoutes(userRegistry: ActorRef[UserRegistry.Command])(implicit val syst
 
   def deleteUser(name: String): Future[ActionPerformed] =
     userRegistry.ask(DeleteUser(name, _))
+
+  def updateUser(user: User): Future[ActionPerformed] =
+    userRegistry.ask(UpdateUser(user, _))
 }
 
