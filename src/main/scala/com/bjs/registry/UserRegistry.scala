@@ -2,8 +2,10 @@ package com.bjs.registry
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
+import com.bjs.logic.UpdateLogic
 import com.bjs.model.{User, Users}
 import com.bjs.repository.UserRepository
+import org.mongodb.scala.bson.BsonDocument
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.ExecutionContext
@@ -18,7 +20,6 @@ object UserRegistry {
 
   private def registry: Behavior[Command] =
     Behaviors.receiveMessage {
-      //todo: need to add "Update" to this
       case GetUsers(replyTo) =>
         logger.debug("GetUsers:")
         UserRepository.findAll() onComplete {
@@ -30,6 +31,14 @@ object UserRegistry {
         logger.debug("CreateUser: " + user)
         UserRepository.save(user)
         replyTo ! ActionPerformed(s"User ${user.name} created.")
+        Behaviors.same
+      case UpdateUser(user, replyTo)=>
+        logger.debug("UpdateUser: " + user)
+        val updateList: BsonDocument = UpdateLogic.createUpdateList(user)
+        UserRepository.update(user.name, updateList) onComplete {
+          case Success(users) => replyTo ! ActionPerformed(s"User ${user.name} updated.")
+          case Failure(t) => replyTo ! ActionPerformed(s"User ${user.name} update error.")
+        }
         Behaviors.same
       case GetUser(name, replyTo) =>
         logger.debug("GetUser: " + name)
@@ -51,6 +60,8 @@ object UserRegistry {
   final case class GetUsers(replyTo: ActorRef[Users]) extends Command
 
   final case class CreateUser(user: User, replyTo: ActorRef[ActionPerformed]) extends Command
+
+  final case class UpdateUser(user: User, replyTo: ActorRef[ActionPerformed]) extends Command
 
   final case class GetUser(name: String, replyTo: ActorRef[GetUserResponse]) extends Command
 

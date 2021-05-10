@@ -27,7 +27,6 @@ class MockitoPracticeTest extends AnyFlatSpec
     val mockClass = new MyClass(myMock)
 
     mockClass.doIt("Brent") shouldBe "Someone did something right!"
-    mockClass.doIt("Frank") shouldBe "Someone did something right!"
   }
 
 }
