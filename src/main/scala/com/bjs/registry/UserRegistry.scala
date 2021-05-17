@@ -2,7 +2,6 @@ package com.bjs.registry
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
-import com.bjs.logic.UpdateLogic
 import com.bjs.model.{User, Users}
 import com.bjs.repository.UserRepository
 import org.mongodb.scala.bson.BsonDocument
@@ -32,12 +31,16 @@ object UserRegistry {
         UserRepository.save(user)
         replyTo ! ActionPerformed(s"User ${user.name} created.")
         Behaviors.same
-      case UpdateUser(user, replyTo)=>
+      case UpdateUser(user, replyTo) =>
         logger.debug("UpdateUser: " + user)
-        val updateList: BsonDocument = UpdateLogic.createUpdateList(user)
-        UserRepository.update(user.name, updateList) onComplete {
-          case Success(users) => replyTo ! ActionPerformed(s"User ${user.name} updated.")
-          case Failure(t) => replyTo ! ActionPerformed(s"User ${user.name} update error.")
+        UserRepository.findByName(user.name) onComplete {
+          case Success(users) =>
+            val updateList: BsonDocument = users.head.createUserUpdateList(user)
+            UserRepository.update(user.name, updateList) onComplete {
+              case Success(updatedUsers) => replyTo ! ActionPerformed(s"User ${updatedUsers} updated.")
+              case Failure(t) => replyTo ! ActionPerformed(s"User ${user.name} update error.")
+            }
+          case Failure(t) => replyTo ! ActionPerformed(s"User ${user.name} not found.")
         }
         Behaviors.same
       case GetUser(name, replyTo) =>

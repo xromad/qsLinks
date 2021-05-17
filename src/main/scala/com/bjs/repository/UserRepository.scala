@@ -12,7 +12,6 @@ import scala.concurrent.Future
 object UserRepository {
   val logger: Logger = LoggerFactory.getLogger(this.getClass.getName)
 
-
   implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
   def findByName(name: String): Future[Seq[User]] = {
