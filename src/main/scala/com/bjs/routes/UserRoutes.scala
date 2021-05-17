@@ -17,6 +17,13 @@ class UserRoutes(userRegistry: ActorRef[UserRegistry.Command])(implicit val syst
   import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
   import com.bjs.model.JsonFormats._
 
+  //todo: need a newCatalog API
+  //todo: need deleteCatalog API
+  //todo: need a newCategory API
+  //todo: need deleteCategory API
+  //todo: need a newLink API
+  //todo: need deleteLink API
+
   // If ask takes more time than this to complete the request is failed
   private implicit val timeout: Timeout = Timeout.create(system.settings.config.getDuration("my-app.routes.ask-timeout"))
   val userRoutes: Route =
@@ -36,10 +43,11 @@ class UserRoutes(userRegistry: ActorRef[UserRegistry.Command])(implicit val syst
                 }
               }
             },
+            // put update  User (/users <body>
             put {
               entity(as[User]) { user =>
                 onSuccess(updateUser(user)) { performed =>
-                  complete((StatusCodes.OK), performed)
+                  complete(StatusCodes.OK, performed)
                 }
               }
             }
